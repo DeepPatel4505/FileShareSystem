@@ -27,7 +27,7 @@ const FilesPage = () => {
         fetchFilesMeta();
     }, []);
 
-    const onDownload = async (id, fileName, mimeType) => {
+    const onDownload = async (id, fileName) => {
         try {
             setError("");
 
@@ -55,6 +55,22 @@ const FilesPage = () => {
             console.error("Download failed:", error);
 
             setError("Unable to download file.");
+        }
+    };
+
+    const onDelete = async (id) => {
+        try {
+            setError("");
+
+            await api.delete(`/file/${id}`);
+
+            setFilesMeta((currentFiles) =>
+                currentFiles.filter((file) => file.id !== id)
+            );
+        } catch (error) {
+            console.error("Delete failed:", error);
+
+            setError("Unable to delete file.");
         }
     };
 
@@ -231,6 +247,7 @@ const FilesPage = () => {
                                 key={fileMeta.id}
                                 fileMeta={fileMeta}
                                 onDownload={onDownload}
+                                onDelete={onDelete}
                             />
                         ))}
                     </div>
