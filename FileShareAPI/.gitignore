@@ -5,3 +5,5 @@ obj/
 *.suo
 appsettings.Development.json
 uploads/*
+Storage/uploads/*
+Storage/*

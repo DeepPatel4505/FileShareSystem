@@ -30,8 +30,7 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
     const handleDownload = () => {
         onDownload(
             fileMeta?.id,
-            fileMeta?.originalFileName,
-            fileMeta?.mimeType,
+            fileMeta?.originalFileName
         );
     };
 

@@ -1,9 +1,8 @@
 using FileShareAPI.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using System.IO;
-using FileShareAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using FileShareAPI.Services;
 
 namespace FileShareAPI.Controllers;
 
@@ -11,11 +10,11 @@ namespace FileShareAPI.Controllers;
 [Route("api/[controller]")]
 public class FileController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IFileService _fileService;
 
-    public FileController(ApplicationDbContext db)
+    public FileController(IFileService fileService)
     {
-        _db = db;
+        _fileService = fileService;
     }
 
     [HttpGet("test")]
@@ -32,50 +31,21 @@ public class FileController : ControllerBase
             return BadRequest("No file Uploaded");
         }
 
-        var uploadFolder = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "uploads"
-        );
-
-        Directory.CreateDirectory(uploadFolder);
-
-        var storageFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-
-        var fullPath = Path.Combine(
-            uploadFolder,
-            storageFileName
-        );
-
-        using (var stream = new FileStream(fullPath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        var fileRecord = new FileRecord
-        {
-            Id = Guid.NewGuid(),
-            OriginalFileName = file.FileName,
-            StoredFileName = storageFileName,
-            ContentType = file.ContentType,
-            Size = file.Length,
-        };
-
-        _db.Files.Add(fileRecord);
-        await _db.SaveChangesAsync();
+        var fileRecord = await _fileService.UploadAsync(file);
         return Ok(fileRecord);
     }
 
     [HttpGet]
     public async Task<ActionResult> FileList()
     {
-        var fileList = await _db.Files.ToListAsync();
+        var fileList = await _fileService.GetFileListAsync();
         return Ok(fileList);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult> Getfile(Guid id)
     {
-        var filedata = await _db.Files.FindAsync(id);
+        var filedata = await _fileService.GetFileAsync(id);
 
         if (filedata == null)
         {
@@ -88,7 +58,7 @@ public class FileController : ControllerBase
     [HttpGet("download/{id}")]
     public async Task<ActionResult> DownloadFile(Guid id)
     {
-        var file = await _db.Files.FindAsync(id);
+        var file = await _fileService.GetDownloadFileAsync(id);
 
         if (file == null)
         {
@@ -97,19 +67,17 @@ public class FileController : ControllerBase
 
         var fullPath = Path.Combine(
             Directory.GetCurrentDirectory(),
-            "uploads",
+            "Storage/uploads",
             file.StoredFileName
         );
+
         if (!System.IO.File.Exists(fullPath))
         {
-            return NotFound("File does not exisit");
+            return NotFound("File does not exist");
         }
 
-        file.DownloadCount++;
-        Console.WriteLine($"File {file.OriginalFileName} has been downloaded {file.DownloadCount} times.");
-
-        await _db.SaveChangesAsync();
         Response.Headers.CacheControl = "no-store";
+
         return PhysicalFile(
             fullPath,
             file.ContentType,
@@ -121,28 +89,15 @@ public class FileController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFile(Guid id)
     {
-        var fileRecord = await _db.Files.FindAsync(id);
+        try
+        {
+            await _fileService.DeleteFileAsync(id);
 
-        if (fileRecord == null)
+            return Ok("File deleted successfully.");
+        }
+        catch (FileNotFoundException)
         {
             return NotFound("File not found.");
         }
-
-        var fullPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "uploads",
-            fileRecord.StoredFileName
-        );
-
-        if (System.IO.File.Exists(fullPath))
-        {
-            System.IO.File.Delete(fullPath);
-        }
-
-        _db.Files.Remove(fileRecord);
-
-        await _db.SaveChangesAsync();
-
-        return Ok("File deleted successfully.");
     }
 }

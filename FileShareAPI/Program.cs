@@ -1,9 +1,12 @@
 using FileShareAPI.Data;
+using FileShareAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers
+builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
@@ -20,11 +23,7 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod();
         });
 });
-
-
-//Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IFileService, FileService>();
 
 // Build the application - this will create an instance of the web application with the configured services and middleware
 var app = builder.Build();
@@ -32,10 +31,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // app.MapOpenApi();
-    app.UseSwagger();
-
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference("/docs");
 }
 app.UseCors("AllowFrontend");
 
