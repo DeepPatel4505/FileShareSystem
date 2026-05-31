@@ -10,4 +10,15 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<FileRecord> Files => Set<FileRecord>();
     public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<FileRecord>()
+            .HasOne(file => file.User)
+            .WithMany(user => user.Files)
+            .HasForeignKey(file => file.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }

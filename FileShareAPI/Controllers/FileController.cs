@@ -3,11 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using FileShareAPI.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace FileShareAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class FileController : ControllerBase
 {
     private readonly IFileService _fileService;
@@ -18,6 +22,7 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("test")]
+    [AllowAnonymous]
     public IActionResult Test()
     {
         return Ok("API Working...");
@@ -26,26 +31,44 @@ public class FileController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Upload(IFormFile file)
     {
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         if (file == null || file.Length == 0)
         {
             return BadRequest("No file Uploaded");
         }
 
-        var fileRecord = await _fileService.UploadAsync(file);
+        var fileRecord = await _fileService.UploadAsync(file, userId.Value);
         return Ok(fileRecord);
     }
 
     [HttpGet]
     public async Task<ActionResult> FileList()
     {
-        var fileList = await _fileService.GetFileListAsync();
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var fileList = await _fileService.GetFileListAsync(userId.Value);
         return Ok(fileList);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult> Getfile(Guid id)
     {
-        var filedata = await _fileService.GetFileAsync(id);
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var filedata = await _fileService.GetFileAsync(id, userId.Value);
 
         if (filedata == null)
         {
@@ -58,7 +81,13 @@ public class FileController : ControllerBase
     [HttpGet("download/{id}")]
     public async Task<ActionResult> DownloadFile(Guid id)
     {
-        var file = await _fileService.GetDownloadFileAsync(id);
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var file = await _fileService.GetDownloadFileAsync(id, userId.Value);
 
         if (file == null)
         {
@@ -89,9 +118,15 @@ public class FileController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFile(Guid id)
     {
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         try
         {
-            await _fileService.DeleteFileAsync(id);
+            await _fileService.DeleteFileAsync(id, userId.Value);
 
             return Ok("File deleted successfully.");
         }
@@ -99,5 +134,13 @@ public class FileController : ControllerBase
         {
             return NotFound("File not found.");
         }
+    }
+
+    private Guid? GetCurrentUserId()
+    {
+        var userIdValue = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+            ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return Guid.TryParse(userIdValue, out var userId) ? userId : null;
     }
 }

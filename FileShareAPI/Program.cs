@@ -7,11 +7,33 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        var components = document.Components ?? new OpenApiComponents();
+        document.Components = components;
+        components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        components.SecuritySchemes["Bearer"] =
+            new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Name = "Authorization",
+                Description = "Enter the JWT as: Bearer {your token}"
+            };
+
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddControllers();
 
 var jwtsettings = builder.Configuration.GetSection("Jwt");
@@ -28,7 +50,7 @@ builder.Services
             ValidIssuer = jwtsettings["Issuer"],
             ValidAudience = jwtsettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtsettings["key"]!)
+                Encoding.UTF8.GetBytes(jwtsettings["Key"]!)
             )
         };
     });
@@ -62,7 +84,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference("/docs");
+    app.MapScalarApiReference("/docs", options => options
+        .AddPreferredSecuritySchemes("Bearer")
+        .EnablePersistentAuthentication());
 }
 app.UseCors("AllowFrontend");
 
