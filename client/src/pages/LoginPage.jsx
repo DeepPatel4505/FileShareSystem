@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../lib/api";
 import {useAuth} from "../hooks/useAuth";
@@ -88,6 +88,10 @@ const LoginPage = () => {
                     <button className="btn-primary" type="submit">
                         Login
                     </button>
+
+                    <p className="auth-switch">
+                        Didn't sign up yet? <Link to="/register">Register</Link>
+                    </p>
                 </form>
             </div>
         </div>

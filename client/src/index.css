@@ -164,6 +164,24 @@ select {
     color: var(--foreground);
 }
 
+.auth-switch {
+    margin-top: 0.25rem;
+    font-size: 0.95rem;
+    color: var(--foreground-secondary);
+    text-align: center;
+}
+
+.auth-switch a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
 /* Layout & Sidebar — semantic, maintainable, production-ready styles */
 .layout {
     min-height: 100vh;

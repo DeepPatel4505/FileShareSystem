@@ -82,8 +82,17 @@ if (!string.IsNullOrEmpty(port))
 {
     builder.WebHost.UseUrls($"http://*:{port}");
 }
+
+
 // Build the application - this will create an instance of the web application with the configured services and middleware
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
