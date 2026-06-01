@@ -25,18 +25,19 @@ const getFileType = (fileName = "") => {
 const Card = ({ fileMeta, onDownload, onDelete }) => {
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const sizeInMb = Number(fileMeta?.size ?? 0) / (1024 * 1024);
+    const sizeInBytes = Number(fileMeta?.size ?? 0);
+    const sizeDisplay =
+        sizeInBytes < 1024 * 1024
+            ? `${(sizeInBytes / 1024).toFixed(0)} KB`
+            : `${(sizeInBytes / (1024 * 1024)).toFixed(0)} MB`;
 
     const handleDownload = () => {
-        onDownload(
-            fileMeta?.id,
-            fileMeta?.originalFileName
-        );
+        onDownload(fileMeta?.id, fileMeta?.fileName);
     };
 
     const handleDelete = async () => {
         const shouldDelete = window.confirm(
-            `Delete ${fileMeta?.originalFileName ?? "this file"}?`,
+            `Delete ${fileMeta?.fileName ?? "this file"}?`,
         );
 
         if (!shouldDelete) return;
@@ -61,17 +62,18 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
             border-(--border)
             bg-(--surface)
             transition-all
+            hover:scale-[1.01]
             duration-300
-            hover:-translate-y-1
             hover:border-(--border-hover)
             hover:bg-(--surface-hover)
             hover:shadow-(--shadow-md)
         "
         >
-            <div className="p-5">
+            <div className="flex h-full flex-col p-5">
                 <div className="flex items-start justify-between gap-4">
                     <h2
                         className="
+                        min-h-14
                         line-clamp-2
                         text-lg
                         font-semibold
@@ -79,7 +81,7 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
                         text-(--foreground)
                     "
                     >
-                        {fileMeta?.originalFileName ?? "Untitled File"}
+                        {fileMeta?.fileName ?? "Untitled File"}
                     </h2>
 
                     <div
@@ -101,39 +103,52 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
                             text-(--primary)
                         "
                         >
-                            {getFileType(fileMeta?.originalFileName)}
+                            {getFileType(fileMeta?.fileName)}
                         </span>
                     </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-1 flex-wrap items-end justify-between">
                     <span
                         className="
-                        rounded-full
-                        bg-(--background-secondary)
-                        px-3
                         py-1
                         text-xs
                         font-medium
                         text-(--foreground-secondary)
                     "
                     >
-                        {sizeInMb.toFixed(2)} MB
+                        Size : {sizeDisplay}
                     </span>
 
                     <span
                         className="
-                        rounded-full
-                        bg-(--background-secondary)
-                        px-3
                         py-1
                         text-xs
                         font-medium
-                        text-(--primary)
+                        text-(--foreground-secondary)
                     "
                     >
                         ↓ {fileMeta?.downloadCount ?? 0}
                     </span>
+                </div>
+
+                <div
+                    className="
+                    mt-3
+                    border-b
+                    border-(--border)
+                    pt-4
+                    pb-3
+                "
+                >
+                    <p
+                        className="
+                        text-sm
+                        text-(--foreground-secondary)
+                    "
+                    >
+                        {formatDate(fileMeta?.uploadedAt)}
+                    </p>
                 </div>
 
                 <div className="mt-6 flex gap-2">
@@ -151,6 +166,7 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
                         transition-all
                         duration-200
                         hover:bg-(--primary-hover)
+                        hover: cursor-pointer
                         active:scale-[0.98]
                     "
                     >
@@ -163,26 +179,26 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
                         aria-label="Delete file"
                         className="
                         flex
-                        h-[42px]
-                        w-[42px]
+                        h-10.5
+                        w-10.5
                         items-center
                         justify-center
                         rounded-sm
                         border
                         border-(--border)
                         bg-(--background-secondary)
-                        text-(--foreground-muted)
+                        text-(--foreground-secondary)
                         transition-all
                         duration-200
                         hover:border-(--destructive)
-                        hover:bg-(--destructive)
-                        hover:text-white
+                        hover:bg-(--background-secondary)
                         active:scale-[0.95]
                         disabled:opacity-50
                     "
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
+                            className="text-red-400 stroke-current"
                             width="18"
                             height="18"
                             viewBox="0 0 24 24"
@@ -199,24 +215,6 @@ const Card = ({ fileMeta, onDownload, onDelete }) => {
                             <path d="M14 11v6" />
                         </svg>
                     </button>
-                </div>
-
-                <div
-                    className="
-                    mt-6
-                    border-t
-                    border-(--border)
-                    pt-4
-                "
-                >
-                    <p
-                        className="
-                        text-sm
-                        text-(--foreground-secondary)
-                    "
-                    >
-                        {formatDate(fileMeta?.uploadedAt)}
-                    </p>
                 </div>
             </div>
         </article>

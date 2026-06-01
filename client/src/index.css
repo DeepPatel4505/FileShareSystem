@@ -103,11 +103,212 @@ select {
     color: inherit;
 }
 
-a {
-    color: var(--link);
-}
 
 ::selection {
     background: color-mix(in srgb, var(--primary) 20%, transparent);
     color: var(--primary);
 }
+
+/* Login page styles — use theme variables above */
+.login-page {
+    background: linear-gradient(180deg, var(--background) 0%, var(--background-secondary) 100%);
+}
+
+.login-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+}
+
+.login-form label {
+    color: var(--foreground-secondary);
+    font-size: 0.95rem;
+}
+
+.input-field {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.btn-primary {
+    display: inline-block;
+    text-align: center;
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    color: var(--primary-foreground);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+}
+
+.login-card h1 {
+    color: var(--foreground);
+}
+
+/* Layout & Sidebar — semantic, maintainable, production-ready styles */
+.layout {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.layout__inner {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .layout__inner {
+        flex-direction: row;
+    }
+
+    .layout__content {
+        flex: 1 1 auto;
+    }
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1rem;
+    background: var(--background-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        width: 16rem;
+        border-bottom: 0;
+        border-right: 1px solid var(--border);
+    }
+}
+
+.sidebar__brand {
+    margin-bottom: 0.75rem;
+}
+
+.sidebar__brand-kicker {
+    font-size: 0.675rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--foreground-muted);
+}
+
+.sidebar__brand-title {
+    margin-top: 0.25rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--foreground);
+}
+
+.sidebar__nav {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    flex-direction: row;
+}
+
+@media (min-width: 768px) {
+    .sidebar__nav {
+        flex-direction: column;
+    }
+}
+
+.sidebar__indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 3.2rem;
+    width: 100%;
+    background: var(--background-tertiary);
+    border-bottom: 2px solid var(--primary);
+    z-index: 0;
+}
+
+.sidebar__tab {
+    position: relative;
+    z-index: 10;
+    display: block;
+    padding: 0.75rem 0.75rem;
+    border: inset 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color 150ms ease, background 150ms ease, transform 80ms ease;
+    font-size: 0.95rem;
+}
+
+.sidebar__tab:hover,
+.sidebar__tab:focus {
+    color: var(--foreground);
+}
+
+.sidebar__tab--active {
+    color: var(--primary);
+    background: var(--background-tertiary);
+}
+
+.sidebar__tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.sidebar__footer {
+    margin-top: 1rem;
+    padding: 0 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .sidebar__footer {
+        margin-top: auto;
+        padding-top: 1rem;
+    }
+}
+
+.sidebar__logout {
+    width: 100%;
+    border: 1px solid var(--destructive);
+    background: var(--surface);
+    color: var(--destructive);
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 150ms ease, transform 80ms ease;
+}
+
+.sidebar__logout:hover {
+    background: var(--surface-hover);
+    transform: translateY(-1px);
+}
+
+.sidebar__logout:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--destructive) 8%, transparent);
+}
+
+/* Layout content default spacing */
+.layout__content {
+    min-height: 100vh;
+}
+

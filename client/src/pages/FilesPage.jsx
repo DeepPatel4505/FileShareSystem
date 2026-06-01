@@ -13,7 +13,7 @@ const FilesPage = () => {
                 setError("");
 
                 const response = await api.get("/file");
-
+                console.log(response.data);
                 setFilesMeta(response.data);
             } catch (error) {
                 console.error(error);
@@ -80,25 +80,7 @@ const FilesPage = () => {
                 <header className="mb-12">
                     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                         <div>
-                            <span
-                                className="
-                                inline-flex
-                                items-center
-                                rounded-full
-                                border
-                                border-(--border)
-                                bg-(--surface)
-                                px-3
-                                py-1
-                                text-xs
-                                font-medium
-                                uppercase
-                                tracking-[0.25em]
-                                text-(--primary)
-                            "
-                            >
-                                File Share System
-                            </span>
+                            
 
                             <h1
                                 className="
@@ -124,52 +106,6 @@ const FilesPage = () => {
                                 Browse uploaded files, manage downloads and
                                 access your shared content from a single place.
                             </p>
-                        </div>
-
-                        <div
-                            className="
-                            flex
-                            items-center
-                            gap-3
-                            rounded-lg
-                            border
-                            border-(--border)
-                            bg-(--surface)
-                            px-5
-                            py-4
-                        "
-                        >
-                            <div
-                                className="
-                                h-3
-                                w-3
-                                rounded-full
-                                bg-(--primary)
-                            "
-                            />
-
-                            <div>
-                                <p
-                                    className="
-                                    text-xs
-                                    uppercase
-                                    tracking-[0.15em]
-                                    text-(--foreground-muted)
-                                "
-                                >
-                                    Total Files
-                                </p>
-
-                                <p
-                                    className="
-                                    text-xl
-                                    font-semibold
-                                    text-(--foreground)
-                                "
-                                >
-                                    {filesMeta.length}
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </header>
