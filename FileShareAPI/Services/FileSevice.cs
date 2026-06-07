@@ -84,13 +84,13 @@ public class FileService(ApplicationDbContext db, IFileStorage fileStorage) : IF
         );
     }
 
-    public async Task DeleteFileAsync(Guid fileId, Guid userId)
+    public async Task<bool> DeleteFileAsync(Guid fileId, Guid userId)
     {
         var fileRecord = await _db.Files.FirstOrDefaultAsync(file => file.Id == fileId && file.UserId == userId);
 
         if (fileRecord == null)
         {
-            throw new FileNotFoundException();
+            return false;
         }
 
         await _fileStorage.DeleteFileAsync(fileRecord.StorageKey);
@@ -98,6 +98,8 @@ public class FileService(ApplicationDbContext db, IFileStorage fileStorage) : IF
         _db.Files.Remove(fileRecord);
 
         await _db.SaveChangesAsync();
+
+        return true;
     }
 
 }

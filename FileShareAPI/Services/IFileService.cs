@@ -8,6 +8,6 @@ public interface IFileService
     Task<List<FileListDto>> GetFileListAsync(Guid userId);
     Task<FileResponseDto?> GetFileAsync(Guid fileId, Guid userId);
     Task<DownloadFileDto> DownloadFileAsync(Guid fileId, Guid userId);
-    Task DeleteFileAsync(Guid fileId, Guid userId);
+    Task<bool> DeleteFileAsync(Guid fileId, Guid userId);
 
 }
